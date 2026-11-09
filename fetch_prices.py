@@ -29,8 +29,42 @@ def months(year, start_month=1, count=13):
     return out
 
 
+ENDPOINTS = [
+    ("prices_for_dates", "https://api.travelpayouts.com/aviasales/v3/prices_for_dates",
+     lambda o, d, m: {"origin": o, "destination": d, "departure_at": m, "one_way": "true",
+                      "sorting": "price", "limit": 1000, "unique": "false"}),
+    ("calendar", "https://api.travelpayouts.com/v1/prices/calendar",
+     lambda o, d, m: {"origin": o, "destination": d, "depart_date": m,
+                      "calendar_type": "departure_date"}),
+    ("grouped_prices", "https://api.travelpayouts.com/aviasales/v3/grouped_prices",
+     lambda o, d, m: {"origin": o, "destination": d, "departure_at": m,
+                      "group_by": "departure_at"}),
+]
+_shown = 0
+route_days = {}
+
+
+def _extract(data):
+    """Accepte une liste de billets ou un dict date -> billet."""
+    items = data.values() if isinstance(data, dict) else (data or [])
+    days = {}
+    for t in items:
+        if not isinstance(t, dict):
+            continue
+        day, p = (t.get("departure_at") or "")[:10], t.get("price")
+        if not day or not p:
+            continue
+        if day not in days or p < days[day]["price"]:
+            link = t.get("link") or ""
+            days[day] = {"price": p, "airline": t.get("airline", ""),
+                         "transfers": t.get("transfers", t.get("number_of_changes", 0)) or 0,
+                         "link": ("https://www.aviasales.com" + link) if link.startswith("/") else link}
+    return days
+
+
 def fetch_leg_month(o, d, month):
     """Prix le plus bas par jour (par adulte, aller simple) pour une ligne et un mois."""
+    global _shown
     key = (o, d, month)
     if key in _cache:
         return _cache[key]
@@ -47,29 +81,30 @@ def fetch_leg_month(o, d, month):
                 "transfers": rnd.choice([0, 1, 1, 2]), "link": "",
             }
     else:
-        params = {
-            "origin": o, "destination": d, "departure_at": month, "one_way": "true",
-            "currency": CFG["currency"], "sorting": "price", "limit": 1000,
-            "unique": "false", "token": TOKEN,
-        }
-        url = API + "?" + urllib.parse.urlencode(params)
-        try:
-            with urllib.request.urlopen(url, timeout=30) as r:
-                payload = json.loads(r.read().decode())
-            for t in payload.get("data", []):
-                day = t["departure_at"][:10]
-                p = t.get("price")
-                if p is None:
-                    continue
-                if day not in days or p < days[day]["price"]:
-                    days[day] = {
-                        "price": p, "airline": t.get("airline", ""),
-                        "transfers": t.get("transfers", t.get("number_of_changes", 0)),
-                        "link": ("https://www.aviasales.com" + t["link"]) if t.get("link") else "",
-                    }
-        except (urllib.error.URLError, ValueError, KeyError) as e:
-            print(f"  ! {o}->{d} {month}: {e}", file=sys.stderr)
-        time.sleep(0.3)
+        for name, url, build in ENDPOINTS:
+            params = build(o, d, month)
+            params.update({"currency": CFG["currency"], "token": TOKEN})
+            req = urllib.request.Request(url + "?" + urllib.parse.urlencode(params),
+                                         headers={"X-Access-Token": TOKEN})
+            try:
+                with urllib.request.urlopen(req, timeout=30) as r:
+                    raw = r.read().decode()
+                payload = json.loads(raw)
+            except urllib.error.HTTPError as e:
+                print(f"  ! {name} {o}->{d} {month}: HTTP {e.code} {e.read()[:150]!r}", flush=True)
+                continue
+            except (urllib.error.URLError, ValueError) as e:
+                print(f"  ! {name} {o}->{d} {month}: {e}", flush=True)
+                continue
+            finally:
+                time.sleep(0.3)
+            days = _extract(payload.get("data")) if isinstance(payload, dict) else {}
+            if _shown < 6:  # aperçu des premières réponses brutes (sans le token)
+                _shown += 1
+                print(f"  [diag] {name} {o}->{d} {month}: {len(days)} jours · {raw[:220]!r}", flush=True)
+            if days:
+                break
+    route_days[(o, d)] = route_days.get((o, d), 0) + len(days)
     _cache[key] = days
     return days
 
@@ -241,10 +276,13 @@ def main():
     if not MOCK and not TOKEN:
         sys.exit("TRAVELPAYOUTS_TOKEN manquant (ou lance avec --mock).")
     os.makedirs(DATA, exist_ok=True)
-    print("Scan en cours…")
+    print("Scan en cours…", flush=True)
     scen, month_best, bests = summarize(scan())
+    print("Jours avec un prix, par trajet :", flush=True)
+    for (a, b), n in sorted(route_days.items()):
+        print(f"  {a}->{b}: {n}", flush=True)
     if not bests:
-        sys.exit("Aucun prix trouvé : vérifie le token et les routes.")
+        sys.exit("Aucune combinaison complète trouvée (voir le détail par trajet ci-dessus).")
     today = dt.date.today().isoformat()
     hist_path = os.path.join(DATA, "history.json")
     history = load(hist_path, [])
