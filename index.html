@@ -78,6 +78,7 @@ footer{color:var(--muted);font-size:.8rem;margin-top:30px}
 const COLORS={direct:"#dcae4f",stop_DOH:"#7cc4d6",stop_AUH:"#b9a6e8",stop_DXB:"#f08fa3",via_MRU_direct:"#f2ecdc",via_MRU_stop_DOH:"#3f93a8",via_MRU_stop_AUH:"#8a73d1",via_MRU_stop_DXB:"#d4627b"};
 const fmtEUR=(n,cur)=>new Intl.NumberFormat("fr-FR",{maximumFractionDigits:0}).format(n)+" "+(cur==="EUR"?"€":cur);
 const MONTHS=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+const mLabel=ym=>MONTHS[parseInt(ym.slice(5))-1]+" "+ym.slice(0,4);
 const dShort=s=>{const d=new Date(s+"T12:00:00");return d.getDate()+" "+MONTHS[d.getMonth()]};
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let L,H,sel="direct",range=90,chart,mchart;
@@ -131,7 +132,7 @@ function render(){
     <div class="facts">
       <div><b>${fmtEUR(low,cur)}</b><span>plus bas relevé</span></div>
       <div><b>${bestM?MONTHS[parseInt(bestM[0].slice(5))-1]:"–"}</b><span>mois le moins cher</span></div>
-      <div><b>${top[0]?dShort(top[0].depart):"–"}</b><span>meilleur départ</span></div>
+      <div><b>${top[0]?(top[0].kind==="indicatif"?mLabel(top[0].month):dShort(top[0].depart)):"–"}</b><span>meilleur départ</span></div>
     </div>
     <div class="chartbox">
       <div class="chartbar"><h2>Évolution du prix</h2>
@@ -140,9 +141,9 @@ function render(){
     </div>
     <div class="sec"><h2>Meilleur prix par mois de départ</h2><p>Le mois le moins cher est en doré.</p>
       <div class="canvas small"><canvas id="m" role="img" aria-label="Meilleur prix par mois"></canvas></div></div>
-    <div class="sec"><h2>Les meilleures options</h2><p>Du moins cher au plus cher. Chaque billet est affiché pour ${L.pax.adults} adultes et ${L.pax.children} enfant (arrondis à l'euro).</p>
+    <div class="sec"><h2>Les meilleures options</h2><p>Du moins cher au plus cher. Chaque billet est affiché pour ${L.pax.adults} adultes et ${L.pax.children} enfant (arrondis à l'euro).${top.some(o=>o.kind==="indicatif")?" Les lignes « Départ en… » sont des estimations : somme des billets les moins chers repérés dans le mois, pas forcément sur les mêmes dates. Sers-t'en pour repérer le bon mois, puis aligne les dates avec les liens.":""}</p>
       ${top.map(o=>{const first=o.legs[0].date,lastD=o.legs[o.legs.length-1].date;
-        return `<div class="opt"><div class="head"><span class="dates">${dShort(first)} → ${dShort(lastD)}</span><span class="tot">${fmtEUR(o.total,cur)}</span></div>
+        return `<div class="opt"><div class="head"><span class="dates">${o.kind==="indicatif"?"Départ en "+mLabel(o.month):dShort(first)+" → "+dShort(lastD)}</span><span class="tot">${fmtEUR(o.total,cur)}</span></div>
         ${o.legs.map(l=>`<div class="leg"><span>${esc(l.from)} → ${esc(l.to)} · ${dShort(l.date)}${l.airline?" · "+esc(l.airline):""} · ${l.transfers?l.transfers+" esc.":"direct"}</span><span class="r">${fmtEUR(l.price*pf,cur)}${l.link?`<a href="${esc(l.link)}" target="_blank" rel="noopener">Voir</a>`:""}</span></div>`).join("")}
         ${hopLine(o.legs,pf,cur)}
         </div>`}).join("")}

@@ -205,12 +205,68 @@ def scan_origin(o, prefix, hop_home=None):
     return results
 
 
+def month_min_leg(o, d, ym):
+    """Billet le moins cher repéré pour ce trajet dans ce mois (ou None)."""
+    best = None
+    for day, p in fetch_leg_month(o, d, ym).items():
+        if best is None or p["price"] < best["price"]:
+            best = {"from": o, "to": d, "date": day, "price": p["price"], "airline": p["airline"],
+                    "transfers": p["transfers"], "link": p["link"]}
+    return best
+
+
+def nominal_templates(o, hop_home, ym):
+    """Parcours type pour un mois de départ : liste de variantes [(de, vers, date), ...]."""
+    y, m = map(int, ym.split("-"))
+    d0, one = dt.date(y, m, 10), dt.timedelta(days=1)
+    n = (CFG["nights_min"] + CFG["nights_max"]) // 2
+    s_ = (CFG["stopover_min_days"] + CFG["stopover_max_days"]) // 2
+    buf, dest = CFG.get("gateway_buffer_days", 1), CFG["destination"]
+
+    def wrap(t):
+        if hop_home:
+            return [(hop_home, o, t[0][2] - buf * one)] + t + [(o, hop_home, t[-1][2] + buf * one)]
+        return t
+
+    out = {"direct": [wrap([(o, dest, d0), (dest, o, d0 + n * one)])]}
+    for h in CFG["hubs"]:
+        out[f"stop_{h}"] = [
+            wrap([(o, h, d0), (h, dest, d0 + s_ * one), (dest, o, d0 + (s_ + n) * one)]),
+            wrap([(o, dest, d0), (dest, h, d0 + n * one), (h, o, d0 + (n + s_) * one)]),
+        ]
+    return out
+
+
+def estimate_origin(o, prefix, hop_home=None):
+    """Indice mensuel : somme des billets les moins chers du mois pour chaque tronçon.
+    Les dates ne sont pas forcément alignées : c'est un plancher de prix, pas un itinéraire."""
+    est = {}
+    for ym in months(CFG["year"], 1, 12):
+        for key, variants in nominal_templates(o, hop_home, ym).items():
+            best = None
+            for tpl in variants:
+                legs = []
+                for a_, b_, day in tpl:
+                    l = month_min_leg(a_, b_, day.strftime("%Y-%m"))
+                    if not l:
+                        legs = None
+                        break
+                    legs.append(l)
+                if legs and (best is None or total_of(legs) < total_of(best)):
+                    best = legs
+            if best:
+                est.setdefault(prefix + key, {})[ym] = best
+    return est
+
+
 def scan():
     results = scan_origin(CFG["origin"], "")
+    est = estimate_origin(CFG["origin"], "")
     gw = CFG.get("gateway")
     if gw:
         results.update(scan_origin(gw, "via_" + gw + "_", hop_home=CFG["origin"]))
-    return results
+        est.update(estimate_origin(gw, "via_" + gw + "_", hop_home=CFG["origin"]))
+    return results, est
 
 
 def label(key):
@@ -223,30 +279,36 @@ def label(key):
     return f"{via}Stopover {key.split('_')[1]}"
 
 
-def summarize(results):
+def summarize(results, estimates):
     scen, month_best, bests = {}, {}, {}
-    for key, combos in results.items():
-        rows = []
-        for legs in combos:
-            rows.append({"total": total_of(legs), "depart": legs[0]["date"], "legs": legs})
-        rows.sort(key=lambda r: r["total"])
-        top, seen = [], set()
-        for r in rows:
-            if r["depart"][:7] in seen and len(top) >= 3:
+    for key in sorted(set(results) | set(estimates)):
+        exact = []
+        for legs in results.get(key, []):
+            exact.append({"total": total_of(legs), "depart": legs[0]["date"], "kind": "exact", "legs": legs})
+        exact.sort(key=lambda r: r["total"])
+        ex_top, seen = [], set()
+        for r in exact:
+            if r["depart"][:7] in seen and len(ex_top) >= 3:
                 continue
             seen.add(r["depart"][:7])
-            top.append(r)
-            if len(top) >= 8:
+            ex_top.append(r)
+            if len(ex_top) >= 5:
                 break
+        indic = [{"total": total_of(legs), "depart": ym + "-01", "month": ym, "kind": "indicatif", "legs": legs}
+                 for ym, legs in estimates.get(key, {}).items()]
+        indic.sort(key=lambda r: r["total"])
+        top = ex_top + indic[:max(0, 8 - len(ex_top))]
         mb = {}
-        for r in rows:
+        for r in exact:
             m = r["depart"][:7]
-            if m not in mb or r["total"] < mb[m]:
-                mb[m] = r["total"]
+            mb[m] = min(r["total"], mb.get(m, r["total"]))
+        for r in indic:
+            mb[r["month"]] = min(r["total"], mb.get(r["month"], r["total"]))
+        if not mb:
+            continue
         scen[key] = {"label": label(key), "top": top}
         month_best[key] = dict(sorted(mb.items()))
-        if rows:
-            bests[key] = rows[0]["total"]
+        bests[key] = min(mb.values())
     return scen, month_best, bests
 
 
@@ -288,7 +350,8 @@ def alerts(bests, scen, history):
             top = scen[key]["top"][0]
             route = " → ".join([top["legs"][0]["from"]] + [l["to"] for l in top["legs"]])
             msgs.append(f"✈️ {scen[key]['label']} : {price} {cur} pour 3 ({' ; '.join(reasons)})\n"
-                        f"Départ {top['depart']} · {route}")
+                        + (f"Estimation pour {top['month']} (billets les moins chers du mois) · {route}"
+                           if top.get("kind") == "indicatif" else f"Départ {top['depart']} · {route}"))
     if msgs:
         telegram("Oumrah — baisse de prix\n\n" + "\n\n".join(msgs))
 
@@ -310,14 +373,14 @@ def main():
         sys.exit("TRAVELPAYOUTS_TOKEN manquant (ou lance avec --mock).")
     os.makedirs(DATA, exist_ok=True)
     print("Scan en cours…", flush=True)
-    scen, month_best, bests = summarize(scan())
+    scen, month_best, bests = summarize(*scan())
     print("Jours avec un prix, par trajet :", flush=True)
     for (a, b), n in sorted(route_days.items()):
         print(f"  {a}->{b}: {n}", flush=True)
     if not bests:
         if not MOCK:
             probe()
-        sys.exit("Aucune combinaison complète trouvée (voir le détail par trajet ci-dessus).")
+        sys.exit("Aucun prix exploitable (voir le détail par trajet ci-dessus).")
     today = dt.date.today().isoformat()
     hist_path = os.path.join(DATA, "history.json")
     history = load(hist_path, [])
