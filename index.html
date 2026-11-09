@@ -57,6 +57,8 @@ h1{font:700 1.15rem/1.2 var(--serif);margin:0;letter-spacing:.01em}
 .opt .tot{font:700 1.25rem var(--serif)}
 .leg{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:.86rem;margin-top:4px}
 .leg a{color:var(--gold);text-decoration:none;white-space:nowrap}
+.leg .r{display:flex;gap:12px;white-space:nowrap;color:var(--ivory)}
+.leg.sub{border-top:1px dashed var(--line);padding-top:4px;color:var(--ivory)}
 .leg a:hover{text-decoration:underline}
 footer{color:var(--muted);font-size:.8rem;margin-top:30px}
 .err{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:24px}
@@ -73,7 +75,7 @@ footer{color:var(--muted);font-size:.8rem;margin-top:30px}
   <footer id="foot"></footer>
 </main>
 <script>
-const COLORS={direct:"#dcae4f",stop_DOH:"#7cc4d6",stop_AUH:"#b9a6e8",stop_DXB:"#f08fa3"};
+const COLORS={direct:"#dcae4f",stop_DOH:"#7cc4d6",stop_AUH:"#b9a6e8",stop_DXB:"#f08fa3",via_MRU_direct:"#f2ecdc",via_MRU_stop_DOH:"#3f93a8",via_MRU_stop_AUH:"#8a73d1",via_MRU_stop_DXB:"#d4627b"};
 const fmtEUR=(n,cur)=>new Intl.NumberFormat("fr-FR",{maximumFractionDigits:0}).format(n)+" "+(cur==="EUR"?"€":cur);
 const MONTHS=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
 const dShort=s=>{const d=new Date(s+"T12:00:00");return d.getDate()+" "+MONTHS[d.getMonth()]};
@@ -101,10 +103,18 @@ async function init(){
   render();
 }
 
+function hopLine(legs,pf,cur){
+  const hop=legs.filter(l=>(l.from==="RUN"&&l.to==="MRU")||(l.from==="MRU"&&l.to==="RUN"));
+  if(!hop.length)return "";
+  const sum=hop.reduce((a,l)=>a+l.price,0)*pf;
+  return `<div class="leg sub"><span>dont Réunion ⇄ Maurice</span><span>${fmtEUR(sum,cur)}</span></div>`;
+}
+
 function series(k){return H.map(h=>({d:h.date,v:h.best[k]})).filter(x=>x.v!=null)}
 
 function render(){
   const cur=L.currency,s=series(sel);
+  const pf=L.pax.adults+L.pax.children*L.pax.child_price_factor;
   const last=s[s.length-1]?.v;
   const ref=s[Math.max(0,s.length-8)]?.v;
   const low=Math.min(...s.map(x=>x.v));
@@ -130,10 +140,11 @@ function render(){
     </div>
     <div class="sec"><h2>Meilleur prix par mois de départ</h2><p>Le mois le moins cher est en doré.</p>
       <div class="canvas small"><canvas id="m" role="img" aria-label="Meilleur prix par mois"></canvas></div></div>
-    <div class="sec"><h2>Les meilleures options</h2><p>Du moins cher au plus cher, pour ${L.pax.adults} adultes et ${L.pax.children} enfant.</p>
+    <div class="sec"><h2>Les meilleures options</h2><p>Du moins cher au plus cher. Chaque billet est affiché pour ${L.pax.adults} adultes et ${L.pax.children} enfant (arrondis à l'euro).</p>
       ${top.map(o=>{const first=o.legs[0].date,lastD=o.legs[o.legs.length-1].date;
         return `<div class="opt"><div class="head"><span class="dates">${dShort(first)} → ${dShort(lastD)}</span><span class="tot">${fmtEUR(o.total,cur)}</span></div>
-        ${o.legs.map(l=>`<div class="leg"><span>${esc(l.from)} → ${esc(l.to)} · ${dShort(l.date)}${l.airline?" · "+esc(l.airline):""} · ${l.transfers?l.transfers+" esc.":"direct"}</span>${l.link?`<a href="${esc(l.link)}" target="_blank" rel="noopener">Voir</a>`:`<span>${fmtEUR(l.price,cur)}/adulte</span>`}</div>`).join("")}
+        ${o.legs.map(l=>`<div class="leg"><span>${esc(l.from)} → ${esc(l.to)} · ${dShort(l.date)}${l.airline?" · "+esc(l.airline):""} · ${l.transfers?l.transfers+" esc.":"direct"}</span><span class="r">${fmtEUR(l.price*pf,cur)}${l.link?`<a href="${esc(l.link)}" target="_blank" rel="noopener">Voir</a>`:""}</span></div>`).join("")}
+        ${hopLine(o.legs,pf,cur)}
         </div>`}).join("")}
     </div>`;
   document.getElementById("range").onclick=e=>{const b=e.target.closest("button");if(!b)return;range=+b.dataset.r;render()};
