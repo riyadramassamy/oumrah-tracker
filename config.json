@@ -1,0 +1,21 @@
+{
+  "origin": "RUN",
+  "destination": "JED",
+  "hubs": ["DOH", "AUH", "DXB"],
+  "currency": "eur",
+  "adults": 2,
+  "children": 1,
+  "child_price_factor": 0.75,
+  "year": 2027,
+  "nights_min": 8,
+  "nights_max": 10,
+  "stopover_min_days": 6,
+  "stopover_max_days": 7,
+  "alert_below": {
+    "direct": null,
+    "stop_DOH": null,
+    "stop_AUH": null,
+    "stop_DXB": null
+  },
+  "alert_min_drop_pct": 2
+}

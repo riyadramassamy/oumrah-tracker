@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e2623">
+<title>Oumrah 2027 · suivi des prix</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0e2623; --surface:#153431; --line:#26504b; --ivory:#f2ecdc; --muted:#9db5ae;
+  --gold:#dcae4f; --good:#8fd3a4; --bad:#ef8c74;
+  --serif:"Fraunces",Georgia,serif; --sans:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ivory);font:400 16px/1.45 var(--sans);
+  padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0);font-variant-numeric:tabular-nums}
+main{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+h1{font:700 1.15rem/1.2 var(--serif);margin:0;letter-spacing:.01em}
+.sub{color:var(--muted);font-size:.9rem;margin:2px 0 0}
+.demo{background:var(--gold);color:#2a2008;border-radius:8px;padding:8px 12px;font-size:.88rem;margin:14px 0 0;font-weight:500}
+.tabs{display:flex;gap:6px;margin:18px 0 0;overflow-x:auto;scrollbar-width:none}
+.tabs button{flex:0 0 auto;border:1px solid var(--line);background:transparent;color:var(--muted);
+  padding:8px 14px;border-radius:999px;font:500 .9rem var(--sans);cursor:pointer;display:flex;align-items:center;gap:8px}
+.tabs button i{width:9px;height:9px;border-radius:50%;display:block}
+.tabs button[aria-pressed=true]{background:var(--surface);color:var(--ivory);border-color:var(--ivory)}
+.tabs button:focus-visible,.range button:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.quote{margin:22px 0 4px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.price{font:700 clamp(2.6rem,12vw,3.8rem)/1 var(--serif);letter-spacing:-.01em}
+.price small{font:500 1rem var(--sans);color:var(--muted);margin-left:6px}
+.delta{font-weight:600;font-size:.95rem}
+.delta.down{color:var(--good)} .delta.up{color:var(--bad)}
+.meta{color:var(--muted);font-size:.88rem;margin:0}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-radius:10px;overflow:hidden;margin:18px 0 0}
+.facts div{background:var(--surface);padding:10px 12px}
+.facts b{display:block;font:600 1.05rem var(--serif)}
+.facts span{color:var(--muted);font-size:.8rem}
+.chartbox{margin:22px 0 0}
+.chartbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.chartbar h2,.sec h2{font:600 1rem var(--serif);margin:0}
+.range{display:flex;gap:4px}
+.range button{border:0;background:transparent;color:var(--muted);padding:6px 10px;border-radius:6px;font:500 .85rem var(--sans);cursor:pointer}
+.range button[aria-pressed=true]{background:var(--surface);color:var(--ivory)}
+.canvas{position:relative;height:260px}
+.sec{margin:34px 0 0}
+.sec p{color:var(--muted);font-size:.85rem;margin:2px 0 10px}
+.canvas.small{height:170px}
+.opt{border-top:1px solid var(--line);padding:14px 0}
+.opt:last-child{border-bottom:1px solid var(--line)}
+.opt .head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.opt .dates{font-weight:600}
+.opt .tot{font:700 1.25rem var(--serif)}
+.leg{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:.86rem;margin-top:4px}
+.leg a{color:var(--gold);text-decoration:none;white-space:nowrap}
+.leg a:hover{text-decoration:underline}
+footer{color:var(--muted);font-size:.8rem;margin-top:30px}
+.err{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:24px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Oumrah 2027 · suivi des prix</h1>
+  <p class="sub" id="sub">Chargement…</p>
+  <div id="demo"></div>
+  <div class="tabs" id="tabs" role="group" aria-label="Scénario"></div>
+  <div id="app"></div>
+  <footer id="foot"></footer>
+</main>
+<script>
+const COLORS={direct:"#dcae4f",stop_DOH:"#7cc4d6",stop_AUH:"#b9a6e8",stop_DXB:"#f08fa3"};
+const fmtEUR=(n,cur)=>new Intl.NumberFormat("fr-FR",{maximumFractionDigits:0}).format(n)+" "+(cur==="EUR"?"€":cur);
+const MONTHS=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+const dShort=s=>{const d=new Date(s+"T12:00:00");return d.getDate()+" "+MONTHS[d.getMonth()]};
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let L,H,sel="direct",range=90,chart,mchart;
+
+async function init(){
+  try{
+    [L,H]=await Promise.all([fetch("data/latest.json").then(r=>r.json()),fetch("data/history.json").then(r=>r.json())]);
+  }catch(e){
+    document.getElementById("sub").textContent="";
+    document.getElementById("app").innerHTML='<div class="err"><b>Données introuvables.</b><br>Ouvre cette page depuis son adresse GitHub Pages (pas depuis un fichier local) et vérifie que le dossier <code>data</code> contient latest.json et history.json.</div>';
+    return;
+  }
+  const t=L.trip,p=L.pax;
+  document.getElementById("sub").textContent=`${t.origin} → Jeddah · ${p.adults} adultes + ${p.children} enfant · ${t.nights[0]}–${t.nights[1]} nuits sur place`;
+  if(L.demo)document.getElementById("demo").innerHTML='<div class="demo">Données de démonstration : les vrais prix arrivent après le premier relevé.</div>';
+  const keys=Object.keys(L.scenarios);
+  sel=keys[0];
+  const tabs=document.getElementById("tabs");
+  tabs.innerHTML=keys.map(k=>`<button data-k="${k}" aria-pressed="${k===sel}"><i style="background:${COLORS[k]||"#fff"}"></i>${esc(L.scenarios[k].label)}</button>`).join("");
+  tabs.onclick=e=>{const b=e.target.closest("button");if(!b)return;sel=b.dataset.k;
+    tabs.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));render()};
+  document.getElementById("foot").innerHTML=`Dernier relevé : ${esc(new Date(L.updated).toLocaleString("fr-FR",{dateStyle:"long",timeStyle:"short"}))}.<br>Prix par adulte relevés une fois par jour (données en cache, aller simple). Le prix de l'enfant est estimé à ${Math.round(p.child_price_factor*100)} % du tarif adulte. Vérifie toujours le prix final sur le lien avant de réserver.`;
+  render();
+}
+
+function series(k){return H.map(h=>({d:h.date,v:h.best[k]})).filter(x=>x.v!=null)}
+
+function render(){
+  const cur=L.currency,s=series(sel);
+  const last=s[s.length-1]?.v;
+  const ref=s[Math.max(0,s.length-8)]?.v;
+  const low=Math.min(...s.map(x=>x.v));
+  const dpct=ref?((last-ref)/ref*100):0;
+  const mb=L.months[sel]||{};
+  const bestM=Object.entries(mb).sort((a,b)=>a[1]-b[1])[0];
+  const top=L.scenarios[sel].top;
+  document.getElementById("app").innerHTML=`
+    <div class="quote">
+      <div class="price">${fmtEUR(last,cur)}<small>pour ${L.pax.adults+L.pax.children}</small></div>
+      <div class="delta ${dpct<=0?"down":"up"}">${dpct<=0?"▼":"▲"} ${Math.abs(dpct).toFixed(1).replace(".",",")} % sur 7 jours</div>
+    </div>
+    <p class="meta">Meilleur total des vols aujourd'hui, pour un départ en 2027.</p>
+    <div class="facts">
+      <div><b>${fmtEUR(low,cur)}</b><span>plus bas relevé</span></div>
+      <div><b>${bestM?MONTHS[parseInt(bestM[0].slice(5))-1]:"–"}</b><span>mois le moins cher</span></div>
+      <div><b>${top[0]?dShort(top[0].depart):"–"}</b><span>meilleur départ</span></div>
+    </div>
+    <div class="chartbox">
+      <div class="chartbar"><h2>Évolution du prix</h2>
+        <div class="range" id="range">${[[30,"30 j"],[90,"90 j"],[0,"Tout"]].map(([v,l])=>`<button data-r="${v}" aria-pressed="${v===range}">${l}</button>`).join("")}</div></div>
+      <div class="canvas"><canvas id="c" role="img" aria-label="Courbe d'évolution des prix"></canvas></div>
+    </div>
+    <div class="sec"><h2>Meilleur prix par mois de départ</h2><p>Le mois le moins cher est en doré.</p>
+      <div class="canvas small"><canvas id="m" role="img" aria-label="Meilleur prix par mois"></canvas></div></div>
+    <div class="sec"><h2>Les meilleures options</h2><p>Du moins cher au plus cher, pour ${L.pax.adults} adultes et ${L.pax.children} enfant.</p>
+      ${top.map(o=>{const first=o.legs[0].date,lastD=o.legs[o.legs.length-1].date;
+        return `<div class="opt"><div class="head"><span class="dates">${dShort(first)} → ${dShort(lastD)}</span><span class="tot">${fmtEUR(o.total,cur)}</span></div>
+        ${o.legs.map(l=>`<div class="leg"><span>${esc(l.from)} → ${esc(l.to)} · ${dShort(l.date)}${l.airline?" · "+esc(l.airline):""} · ${l.transfers?l.transfers+" esc.":"direct"}</span>${l.link?`<a href="${esc(l.link)}" target="_blank" rel="noopener">Voir</a>`:`<span>${fmtEUR(l.price,cur)}/adulte</span>`}</div>`).join("")}
+        </div>`}).join("")}
+    </div>`;
+  document.getElementById("range").onclick=e=>{const b=e.target.closest("button");if(!b)return;range=+b.dataset.r;render()};
+  drawLine();drawMonths(mb);
+}
+
+function drawLine(){
+  const ctx=document.getElementById("c").getContext("2d");
+  const all=Object.keys(L.scenarios);
+  const cut=range?new Date(Date.now()-range*864e5).toISOString().slice(0,10):"0";
+  const labels=H.filter(h=>h.date>=cut).map(h=>h.date);
+  const grid="#26504b",txt="#9db5ae";
+  const datasets=all.map(k=>{
+    const on=k===sel,col=COLORS[k]||"#fff";
+    const g=ctx.createLinearGradient(0,0,0,260);g.addColorStop(0,col+"44");g.addColorStop(1,col+"00");
+    return{label:L.scenarios[k].label,data:H.filter(h=>h.date>=cut).map(h=>h.best[k]),
+      borderColor:on?col:col+"55",borderWidth:on?2.5:1.2,pointRadius:0,pointHoverRadius:4,tension:.25,
+      fill:on,backgroundColor:g,order:on?0:1}});
+  if(chart)chart.destroy();
+  chart=new Chart(ctx,{type:"line",data:{labels,datasets},options:{
+    responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+    plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>dShort(i[0].label),label:i=>` ${i.dataset.label} : ${fmtEUR(i.parsed.y,L.currency)}`}}},
+    scales:{x:{ticks:{color:txt,maxTicksLimit:5,callback:function(v){return dShort(this.getLabelForValue(v))}},grid:{display:false}},
+            y:{position:"right",ticks:{color:txt,callback:v=>fmtEUR(v,L.currency)},grid:{color:grid}}}}});
+}
+
+function drawMonths(mb){
+  const ctx=document.getElementById("m").getContext("2d");
+  const keys=Object.keys(mb),vals=keys.map(k=>mb[k]),min=Math.min(...vals);
+  if(mchart)mchart.destroy();
+  mchart=new Chart(ctx,{type:"bar",data:{labels:keys.map(k=>MONTHS[parseInt(k.slice(5))-1]),
+    datasets:[{data:vals,backgroundColor:vals.map(v=>v===min?"#dcae4f":"#3f6b65"),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:i=>" "+fmtEUR(i.parsed.y,L.currency)}}},
+      scales:{x:{ticks:{color:"#9db5ae"},grid:{display:false}},y:{display:false,beginAtZero:false}}}});
+}
+init();
+</script>
+</body>
+</html>
