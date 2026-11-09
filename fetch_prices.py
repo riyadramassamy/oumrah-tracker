@@ -143,63 +143,84 @@ def total_of(legs):
     return round(sum(l["price"] for l in legs) * pax_factor())
 
 
-def scan():
-    o, dest, hubs = CFG["origin"], CFG["destination"], CFG["hubs"]
+def scan_origin(o, prefix, hop_home=None):
+    """Combinaisons de vols depuis l'aéroport o (direct + stopovers).
+    Si hop_home est donné (ex. RUN), on ajoute le petit vol hop_home -> o à l'aller
+    et o -> hop_home au retour, avec une nuit de marge (gateway_buffer_days)."""
+    dest, hubs = CFG["destination"], CFG["hubs"]
     y = CFG["year"]
     n_lo, n_hi = CFG["nights_min"], CFG["nights_max"]
     s_lo, s_hi = CFG["stopover_min_days"], CFG["stopover_max_days"]
+    buf = CFG.get("gateway_buffer_days", 1)
     one = dt.timedelta(days=1)
     start, end = dt.date(y, 1, 1), dt.date(y, 12, 31)
 
-    results = {"direct": []}
+    results = {f"{prefix}direct": []}
     for h in hubs:
-        results[f"stop_{h}"] = []
+        results[f"{prefix}stop_{h}"] = []
+
+    def add(key, legs):
+        if hop_home:
+            first = dt.date.fromisoformat(legs[0]["date"])
+            last = dt.date.fromisoformat(legs[-1]["date"])
+            h_out = leg(hop_home, o, first - buf * one)
+            h_back = leg(o, hop_home, last + buf * one)
+            if not (h_out and h_back):
+                return
+            legs = [h_out] + legs + [h_back]
+        results[key].append(legs)
 
     day = start
     while day <= end:
-        # Direct : o -> dest, séjour, dest -> o
         out = leg(o, dest, day)
         if out:
             back = best_return(dest, o, day + n_lo * one, day + n_hi * one)
             if back:
-                results["direct"].append([out, back])
-        # Avec stopover
+                add(f"{prefix}direct", [out, back])
         for h in hubs:
-            key = f"stop_{h}"
             cands = []
-            # Stop à l'aller : o -> h, (s jours), h -> dest, séjour, dest -> o
             a1 = leg(o, h, day)
             if a1:
-                for s in range(s_lo, s_hi + 1):
-                    a2 = leg(h, dest, day + s * one)
+                for s_ in range(s_lo, s_hi + 1):
+                    a2 = leg(h, dest, day + s_ * one)
                     if not a2:
                         continue
-                    base = day + s * one
+                    base = day + s_ * one
                     back = best_return(dest, o, base + n_lo * one, base + n_hi * one)
                     if back:
                         cands.append([a1, a2, back])
-            # Stop au retour : o -> dest, séjour, dest -> h, (s jours), h -> o
             b1 = leg(o, dest, day)
             if b1:
                 for n in range(n_lo, n_hi + 1):
                     b2 = leg(dest, h, day + n * one)
                     if not b2:
                         continue
-                    for s in range(s_lo, s_hi + 1):
-                        b3 = leg(h, o, day + (n + s) * one)
+                    for s_ in range(s_lo, s_hi + 1):
+                        b3 = leg(h, o, day + (n + s_) * one)
                         if b3:
                             cands.append([b1, b2, b3])
             if cands:
-                results[key].append(min(cands, key=total_of))
+                add(f"{prefix}stop_{h}", min(cands, key=total_of))
         day += one
     return results
 
 
-LABELS = {"direct": "Direct"}
+def scan():
+    results = scan_origin(CFG["origin"], "")
+    gw = CFG.get("gateway")
+    if gw:
+        results.update(scan_origin(gw, "via_" + gw + "_", hop_home=CFG["origin"]))
+    return results
 
 
 def label(key):
-    return "Direct" if key == "direct" else f"Stopover {key.split('_')[1]}"
+    via = ""
+    if key.startswith("via_"):
+        _, gw, key = key.split("_", 2)
+        via = {"MRU": "Maurice"}.get(gw, gw) + " · "
+    if key == "direct":
+        return via + "Direct" if via else "Direct"
+    return f"{via}Stopover {key.split('_')[1]}"
 
 
 def summarize(results):
@@ -272,6 +293,18 @@ def alerts(bests, scen, history):
         telegram("Oumrah — baisse de prix\n\n" + "\n\n".join(msgs))
 
 
+def probe():
+    """Trajets témoins : permet de savoir si l'API répond pour d'autres routes."""
+    tests = [("PAR", "LON"), ("PAR", "JED"), ("PAR", "DXB"), ("MRU", "JED"),
+             ("DXB", "JED"), ("DOH", "JED"), ("RUN", "PAR"), ("RUN", "MRU"), ("JED", "RUN")]
+    print("Test de contrôle (autres trajets) :", flush=True)
+    for a, b in tests:
+        for m in ("2027-03", "2027-07"):
+            days = fetch_leg_month(a, b, m)
+            lo = min((v["price"] for v in days.values()), default=None)
+            print(f"  [probe] {a}->{b} {m}: {len(days)} jours" + (f", dès {lo}" if lo else ""), flush=True)
+
+
 def main():
     if not MOCK and not TOKEN:
         sys.exit("TRAVELPAYOUTS_TOKEN manquant (ou lance avec --mock).")
@@ -282,6 +315,8 @@ def main():
     for (a, b), n in sorted(route_days.items()):
         print(f"  {a}->{b}: {n}", flush=True)
     if not bests:
+        if not MOCK:
+            probe()
         sys.exit("Aucune combinaison complète trouvée (voir le détail par trajet ci-dessus).")
     today = dt.date.today().isoformat()
     hist_path = os.path.join(DATA, "history.json")

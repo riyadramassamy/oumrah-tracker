@@ -1,7 +1,11 @@
 {
   "origin": "RUN",
   "destination": "JED",
-  "hubs": ["DOH", "AUH", "DXB"],
+  "hubs": [
+    "DOH",
+    "AUH",
+    "DXB"
+  ],
   "currency": "eur",
   "adults": 2,
   "children": 1,
@@ -15,7 +19,13 @@
     "direct": null,
     "stop_DOH": null,
     "stop_AUH": null,
-    "stop_DXB": null
+    "stop_DXB": null,
+    "via_MRU_direct": null,
+    "via_MRU_stop_DOH": null,
+    "via_MRU_stop_AUH": null,
+    "via_MRU_stop_DXB": null
   },
-  "alert_min_drop_pct": 2
+  "alert_min_drop_pct": 2,
+  "gateway": "MRU",
+  "gateway_buffer_days": 1
 }
