@@ -20,7 +20,7 @@
     "stop_DOH": null,
     "stop_AUH": null,
     "stop_DXB": null,
-    "via_MRU_direct": 99999,
+    "via_MRU_direct": 3700,
     "via_MRU_stop_DOH": null,
     "via_MRU_stop_AUH": null,
     "via_MRU_stop_DXB": null
