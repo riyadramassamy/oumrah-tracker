@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-10T02:43+00:00",
+ "updated": "2026-11-10T06:58+00:00",
  "demo": false,
  "currency": "EUR",
  "pax": {
@@ -23,50 +23,6 @@
   "via_MRU_direct": {
    "label": "Maurice · Direct",
    "top": [
-    {
-     "total": 3391,
-     "depart": "2027-01-01",
-     "month": "2027-01",
-     "kind": "indicatif",
-     "legs": [
-      {
-       "from": "RUN",
-       "to": "MRU",
-       "date": "2027-05-17",
-       "price": 222,
-       "airline": "AF",
-       "transfers": 0,
-       "link": ""
-      },
-      {
-       "from": "MRU",
-       "to": "JED",
-       "date": "2027-01-11",
-       "price": 397,
-       "airline": "EK",
-       "transfers": 1,
-       "link": "https://www.aviasales.com/search/MRU1101JED1?t=EK17996847001799777100001600MRUDXBJED_1e0998c3f19c2eefc50080c1cc362e39_36713&search_date=09112026&expected_price_uuid=01a1c201-7060-8031-6ef7-dcc91f359119&static_fare_key=TY%7CP0%7CH1%7CL1_2_46%7CCH0%7CR0%7CTBC1&itinerary_key=xHt484RLoS3r7rE1_O7xMw&expected_price_source=share&expected_price_currency=eur&expected_price=397"
-      },
-      {
-       "from": "JED",
-       "to": "MRU",
-       "date": "2027-01-13",
-       "price": 355,
-       "airline": "6E",
-       "transfers": 1,
-       "link": "https://www.aviasales.com/search/JED1301MRU1?t=6E17998134001799915400001640JEDBLRMRU_47064b0ff9d71330029cb01847f3b3ac_32321&search_date=03112026&expected_price_uuid=01a19ffa-3616-8030-6c59-f5c724febf15&static_fare_key=TY%7CP1%7CH1%7CL1_1_30%7CCH0%7CR0%7CTBC1&itinerary_key=cJsixn9GsgbibFW4QmmKqQ&expected_price_source=share&expected_price_currency=eur&expected_price=355"
-      },
-      {
-       "from": "MRU",
-       "to": "RUN",
-       "date": "2026-11-21",
-       "price": 259,
-       "airline": "UU",
-       "transfers": 0,
-       "link": ""
-      }
-     ]
-    },
     {
      "total": 3394,
      "depart": "2027-03-01",
@@ -134,6 +90,50 @@
        "airline": "EK",
        "transfers": 1,
        "link": "https://www.aviasales.com/search/MRU0402JED1?t=MK18017583001801794600000665MRUDXBJED_8699db7a2cb10e9e8f7db35ce98806cb_28541&search_date=07112026&expected_price_uuid=01a1b580-1c18-8031-2fae-19c583f66e49&static_fare_key=TY%7CP1%7CH1%7CL1_2_0%7CCH0%7CR0%7CTBC1&itinerary_key=KEAoonVTho8Us3WiStAuRQ&expected_price_source=share&expected_price_currency=eur&expected_price=313"
+      },
+      {
+       "from": "JED",
+       "to": "MRU",
+       "date": "2026-12-16",
+       "price": 668,
+       "airline": "6E",
+       "transfers": 1,
+       "link": ""
+      },
+      {
+       "from": "MRU",
+       "to": "RUN",
+       "date": "2026-11-21",
+       "price": 259,
+       "airline": "UU",
+       "transfers": 0,
+       "link": ""
+      }
+     ]
+    },
+    {
+     "total": 4252,
+     "depart": "2027-01-01",
+     "month": "2027-01",
+     "kind": "indicatif",
+     "legs": [
+      {
+       "from": "RUN",
+       "to": "MRU",
+       "date": "2027-05-17",
+       "price": 222,
+       "airline": "AF",
+       "transfers": 0,
+       "link": ""
+      },
+      {
+       "from": "MRU",
+       "to": "JED",
+       "date": "2027-01-11",
+       "price": 397,
+       "airline": "EK",
+       "transfers": 1,
+       "link": "https://www.aviasales.com/search/MRU1101JED1?t=EK17996847001799777100001600MRUDXBJED_1e0998c3f19c2eefc50080c1cc362e39_36713&search_date=09112026&expected_price_uuid=01a1c201-7060-8031-6ef7-dcc91f359119&static_fare_key=TY%7CP0%7CH1%7CL1_2_46%7CCH0%7CR0%7CTBC1&itinerary_key=xHt484RLoS3r7rE1_O7xMw&expected_price_source=share&expected_price_currency=eur&expected_price=397"
       },
       {
        "from": "JED",
@@ -381,59 +381,6 @@
    "label": "Maurice · Stopover AUH",
    "top": [
     {
-     "total": 3322,
-     "depart": "2027-01-01",
-     "month": "2027-01",
-     "kind": "indicatif",
-     "legs": [
-      {
-       "from": "RUN",
-       "to": "MRU",
-       "date": "2027-05-17",
-       "price": 222,
-       "airline": "AF",
-       "transfers": 0,
-       "link": ""
-      },
-      {
-       "from": "MRU",
-       "to": "AUH",
-       "date": "2027-01-16",
-       "price": 245,
-       "airline": "HM",
-       "transfers": 1,
-       "link": "https://www.aviasales.com/search/MRU1601AUH1?t=HM18001185001800147900000490MRUSEZAUH_47082dbabe6a4b407a54921a7a9092f7_22348&search_date=08112026&expected_price_uuid=01a1bc58-674b-8030-2083-5ee3331c43b8&static_fare_key=TY%7CP1%7CH0%7CL1_1_30%7CCH1%7CR0%7CTBC1&itinerary_key=mIbLTi36_A2gryEias-7rw&expected_price_source=share&expected_price_currency=eur&expected_price=245"
-      },
-      {
-       "from": "AUH",
-       "to": "JED",
-       "date": "2027-01-13",
-       "price": 127,
-       "airline": "QR",
-       "transfers": 1,
-       "link": "https://www.aviasales.com/search/AUH1301JED1?t=QR17998176001799853000000650AUHDOHJED_362ac80db0ad2dcc233bd12133d61ede_11647&search_date=04112026&expected_price_uuid=01a1a4c1-f82a-8031-2d3d-2216db29bd88&static_fare_key=TY%7CP1%7CH1%7CL0%7CCH0%7CR0%7CTBC0&itinerary_key=mzLOKiG0gjXqfTUKjM-Y7w&expected_price_source=share&expected_price_currency=eur&expected_price=127"
-      },
-      {
-       "from": "JED",
-       "to": "MRU",
-       "date": "2027-01-13",
-       "price": 355,
-       "airline": "6E",
-       "transfers": 1,
-       "link": "https://www.aviasales.com/search/JED1301MRU1?t=6E17998134001799915400001640JEDBLRMRU_47064b0ff9d71330029cb01847f3b3ac_32321&search_date=03112026&expected_price_uuid=01a19ffa-3616-8030-6c59-f5c724febf15&static_fare_key=TY%7CP1%7CH1%7CL1_1_30%7CCH0%7CR0%7CTBC1&itinerary_key=cJsixn9GsgbibFW4QmmKqQ&expected_price_source=share&expected_price_currency=eur&expected_price=355"
-      },
-      {
-       "from": "MRU",
-       "to": "RUN",
-       "date": "2026-11-21",
-       "price": 259,
-       "airline": "UU",
-       "transfers": 0,
-       "link": ""
-      }
-     ]
-    },
-    {
      "total": 3358,
      "depart": "2027-02-01",
      "month": "2027-02",
@@ -474,6 +421,59 @@
        "airline": "6E",
        "transfers": 1,
        "link": "https://www.aviasales.com/search/AUH1702MRU1?t=6E18028251001802939400001905AUHBLRMRU_be478c23b92660533f488a9516454333_27594&search_date=04112026&expected_price_uuid=01a1a592-9030-8030-2ba0-fd32a56c572a&static_fare_key=TY%7CP1%7CH1%7CL1_1_30%7CCH0%7CR0%7CTBC1&itinerary_key=Nh2GuvRHe2DN6TlJKqnrdw&expected_price_source=share&expected_price_currency=eur&expected_price=301"
+      },
+      {
+       "from": "MRU",
+       "to": "RUN",
+       "date": "2026-11-21",
+       "price": 259,
+       "airline": "UU",
+       "transfers": 0,
+       "link": ""
+      }
+     ]
+    },
+    {
+     "total": 3473,
+     "depart": "2027-01-01",
+     "month": "2027-01",
+     "kind": "indicatif",
+     "legs": [
+      {
+       "from": "RUN",
+       "to": "MRU",
+       "date": "2027-05-17",
+       "price": 222,
+       "airline": "AF",
+       "transfers": 0,
+       "link": ""
+      },
+      {
+       "from": "MRU",
+       "to": "JED",
+       "date": "2027-01-11",
+       "price": 397,
+       "airline": "EK",
+       "transfers": 1,
+       "link": "https://www.aviasales.com/search/MRU1101JED1?t=EK17996847001799777100001600MRUDXBJED_1e0998c3f19c2eefc50080c1cc362e39_36713&search_date=09112026&expected_price_uuid=01a1c201-7060-8031-6ef7-dcc91f359119&static_fare_key=TY%7CP0%7CH1%7CL1_2_46%7CCH0%7CR0%7CTBC1&itinerary_key=xHt484RLoS3r7rE1_O7xMw&expected_price_source=share&expected_price_currency=eur&expected_price=397"
+      },
+      {
+       "from": "JED",
+       "to": "AUH",
+       "date": "2027-01-14",
+       "price": 113,
+       "airline": "EY",
+       "transfers": 0,
+       "link": "https://www.aviasales.com/search/JED1401AUH1?t=EY17999058001799918400000150JEDAUH_e0352bf2989b4057f5f33c1fe57be38a_10323&search_date=03112026&expected_price_uuid=01a1a255-c12f-8031-2d1e-501af65ee397&static_fare_key=TY%7CP0%7CH1%7CL0%7CCH0%7CR0%7CTBC0&itinerary_key=MpApRx3ib6WvQGO7jASBPA&expected_price_source=share&expected_price_currency=eur&expected_price=113"
+      },
+      {
+       "from": "AUH",
+       "to": "MRU",
+       "date": "2027-01-18",
+       "price": 272,
+       "airline": "6E",
+       "transfers": 1,
+       "link": "https://www.aviasales.com/search/AUH1801MRU1?t=6E18002331001800347400001905AUHBLRMRU_1d6c597adc94fd1e2681a7ab02d8c580_24953&search_date=04112026&expected_price_uuid=01a1a815-6d0d-8030-6a1b-3da128ad2430&static_fare_key=TY%7CP1%7CH1%7CL1_1_20%7CCH0%7CR0%7CTBC1&itinerary_key=Nh2GuvRHe2DN6TlJKqnrdw&expected_price_source=share&expected_price_currency=eur&expected_price=272"
       },
       {
        "from": "MRU",
@@ -1239,7 +1239,7 @@
    "label": "Maurice · Stopover DXB",
    "top": [
     {
-     "total": 3462,
+     "total": 3413,
      "depart": "2027-02-01",
      "month": "2027-02",
      "kind": "indicatif",
@@ -1274,64 +1274,11 @@
       {
        "from": "DXB",
        "to": "MRU",
-       "date": "2027-02-19",
-       "price": 355,
-       "airline": "6E",
+       "date": "2027-02-20",
+       "price": 337,
+       "airline": "IX",
        "transfers": 2,
-       "link": "https://www.aviasales.com/search/DXB1902MRU1?t=6E18030324001803112200001330DXBMAABLRMRU_77c9a45f84266f0de2a49c1191ff7ed2_32623&search_date=04112026&expected_price_uuid=01a1a5c4-a16d-8031-6cdd-cb589307b89c&static_fare_key=TY%7CP1%7CH1%7CL1_1_20%7CCH1%7CR1%7CTBC1&itinerary_key=Gqk9oLqoXZPmiFKXT-aNQA&expected_price_source=share&expected_price_currency=eur&expected_price=355"
-      },
-      {
-       "from": "MRU",
-       "to": "RUN",
-       "date": "2026-11-21",
-       "price": 259,
-       "airline": "UU",
-       "transfers": 0,
-       "link": ""
-      }
-     ]
-    },
-    {
-     "total": 3482,
-     "depart": "2027-01-01",
-     "month": "2027-01",
-     "kind": "indicatif",
-     "legs": [
-      {
-       "from": "RUN",
-       "to": "MRU",
-       "date": "2027-05-17",
-       "price": 222,
-       "airline": "AF",
-       "transfers": 0,
-       "link": ""
-      },
-      {
-       "from": "MRU",
-       "to": "DXB",
-       "date": "2027-01-17",
-       "price": 319,
-       "airline": "SV",
-       "transfers": 1,
-       "link": "https://www.aviasales.com/search/MRU1701DXB1?t=SV18002073001800248100000680MRUJEDDXB_7b2d1a6f7364ebbb28740bce5165747e_29203&search_date=05112026&expected_price_uuid=01a1ac8a-70d9-8031-6fd2-7ed90329b2ca&static_fare_key=TY%7CP0%7CH1%7CL1_1_23%7CCH0%7CR0%7CTBC1&itinerary_key=rK5SYPx-Ka0U_ktCug1hdA&expected_price_source=share&expected_price_currency=eur&expected_price=319"
-      },
-      {
-       "from": "DXB",
-       "to": "JED",
-       "date": "2027-01-11",
-       "price": 111,
-       "airline": "XY",
-       "transfers": 0,
-       "link": "https://www.aviasales.com/search/DXB1101JED1?t=XY17996700001799679300000215DXBJED_83686e7cc3a6771b69822e9f491414ad_10230&search_date=10112026&expected_price_uuid=01a1c2c7-1804-8040-6588-32cd5dc3e82c&static_fare_key=TY%7CP0%7CH1%7CL0%7CCH0%7CR0%7CTBC0&itinerary_key=wTt-6mrR-DmGrBpjF_cHcQ&expected_price_source=share&expected_price_currency=eur&expected_price=110"
-      },
-      {
-       "from": "JED",
-       "to": "MRU",
-       "date": "2027-01-13",
-       "price": 355,
-       "airline": "6E",
-       "transfers": 1,
-       "link": "https://www.aviasales.com/search/JED1301MRU1?t=6E17998134001799915400001640JEDBLRMRU_47064b0ff9d71330029cb01847f3b3ac_32321&search_date=03112026&expected_price_uuid=01a19ffa-3616-8030-6c59-f5c724febf15&static_fare_key=TY%7CP1%7CH1%7CL1_1_30%7CCH0%7CR0%7CTBC1&itinerary_key=cJsixn9GsgbibFW4QmmKqQ&expected_price_source=share&expected_price_currency=eur&expected_price=355"
+       "link": "https://www.aviasales.com/search/DXB2002MRU1?t=AI18030834001803192900001825DXBBLRBOMMRU_7bcae684b4a038704be6bd3ba9e48ce3_31179&search_date=10112026&expected_price_uuid=01a1c3f0-f2b7-8030-2bd8-fdf0960b54cf&static_fare_key=TY%7CP1%7CH1%7CL1_1_25%7CCH0%7CR0%7CTBC1&itinerary_key=4V7JrNqF-ch-_jS9UBXVUg&expected_price_source=share&expected_price_currency=eur&expected_price=337"
       },
       {
        "from": "MRU",
@@ -1385,6 +1332,59 @@
        "airline": "6E",
        "transfers": 2,
        "link": "https://www.aviasales.com/search/DXB1303MRU1?t=6E18049332001805013000001330DXBMAABLRMRU_dbf023162feada5a94bbbd7351a2161f_32627&search_date=03112026&expected_price_uuid=01a1a364-2d10-8030-acc1-80a349a0c9fa&static_fare_key=TY%7CP1%7CH1%7CL1_1_20%7CCH1%7CR1%7CTBC1&itinerary_key=niTWE1Vi7dW8IXaA7rFObw&expected_price_source=share&expected_price_currency=eur&expected_price=357"
+      },
+      {
+       "from": "MRU",
+       "to": "RUN",
+       "date": "2026-11-21",
+       "price": 259,
+       "airline": "UU",
+       "transfers": 0,
+       "link": ""
+      }
+     ]
+    },
+    {
+     "total": 3649,
+     "depart": "2027-01-01",
+     "month": "2027-01",
+     "kind": "indicatif",
+     "legs": [
+      {
+       "from": "RUN",
+       "to": "MRU",
+       "date": "2027-05-17",
+       "price": 222,
+       "airline": "AF",
+       "transfers": 0,
+       "link": ""
+      },
+      {
+       "from": "MRU",
+       "to": "JED",
+       "date": "2027-01-11",
+       "price": 397,
+       "airline": "EK",
+       "transfers": 1,
+       "link": "https://www.aviasales.com/search/MRU1101JED1?t=EK17996847001799777100001600MRUDXBJED_1e0998c3f19c2eefc50080c1cc362e39_36713&search_date=09112026&expected_price_uuid=01a1c201-7060-8031-6ef7-dcc91f359119&static_fare_key=TY%7CP0%7CH1%7CL1_2_46%7CCH0%7CR0%7CTBC1&itinerary_key=xHt484RLoS3r7rE1_O7xMw&expected_price_source=share&expected_price_currency=eur&expected_price=397"
+      },
+      {
+       "from": "JED",
+       "to": "DXB",
+       "date": "2027-01-24",
+       "price": 106,
+       "airline": "XY",
+       "transfers": 0,
+       "link": "https://www.aviasales.com/search/JED2401DXB1?t=XY18007749001800789300000180JEDDXB_795649a0509823b1e8043eda13434277_9718&search_date=07112026&expected_price_uuid=01a1b773-602b-8030-e838-d0fe955db917&static_fare_key=TY%7CP0%7CH1%7CL0%7CCH0%7CR0%7CTBC0&itinerary_key=fd8EVupiIWQafXVqxgpBCA&expected_price_source=share&expected_price_currency=eur&expected_price=106"
+      },
+      {
+       "from": "DXB",
+       "to": "MRU",
+       "date": "2027-01-15",
+       "price": 343,
+       "airline": "RJ",
+       "transfers": 3,
+       "link": "https://www.aviasales.com/search/DXB1501MRU1?t=6E18000207001800174600002565DXBAMMBOMBLRMRU_17053f4b297eadd5be103e06401fce72_31732&search_date=09112026&expected_price_uuid=01a1c1b9-0f6e-8031-65a4-cf3bf5f92df0&static_fare_key=TY%7CP0%7CH1%7CL1_1_20%7CCH1%7CR1%7CTBC1&itinerary_key=RfeVM8e-De10kcYL_CT9LQ&expected_price_source=share&expected_price_currency=eur&expected_price=343"
       },
       {
        "from": "MRU",
@@ -1667,7 +1667,7 @@
  },
  "months": {
   "via_MRU_direct": {
-   "2027-01": 3391,
+   "2027-01": 4252,
    "2027-02": 4020,
    "2027-03": 3394,
    "2027-04": 4856,
@@ -1681,7 +1681,7 @@
    "2027-12": 4856
   },
   "via_MRU_stop_AUH": {
-   "2027-01": 3322,
+   "2027-01": 3473,
    "2027-02": 3358,
    "2027-03": 3534,
    "2027-04": 4755,
@@ -1709,8 +1709,8 @@
    "2027-12": 5445
   },
   "via_MRU_stop_DXB": {
-   "2027-01": 3482,
-   "2027-02": 3462,
+   "2027-01": 3649,
+   "2027-02": 3413,
    "2027-03": 3542,
    "2027-04": 4252,
    "2027-05": 4570,
@@ -1719,7 +1719,7 @@
    "2027-08": 4702,
    "2027-09": 4482,
    "2027-10": 4496,
-   "2027-11": 4821,
+   "2027-11": 4865,
    "2027-12": 4900
   }
  }
